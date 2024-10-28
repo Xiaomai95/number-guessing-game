@@ -56,7 +56,7 @@ USER_GUESS() {
       echo "It's higher than that, guess again:"
       ((NUMBER_OF_GUESSES++))
       USER_GUESS
-    elif [[ $GUESS == $RANDOM_NUMBER ]]
+    elif [[ $GUESS -eq $RANDOM_NUMBER ]]
       then
       ((NUMBER_OF_GUESSES++))
       ((GAMES_PLAYED++))
