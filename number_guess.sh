@@ -4,7 +4,7 @@ PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
 RANDOM_NUMBER=$(( (RANDOM % 1000) + 1))
 #variables needed: number_of_guesses (input into database when game is over)
-NUMBER_OF_GUESSES=null
+NUMBER_OF_GUESSES=0
 
 START() {
   # prompt for username: "Enter username:"
@@ -27,6 +27,8 @@ START() {
     echo "Welcome back, $( echo $USERNAME | sed -e 's/^ +| $+//g')! You have played $( echo $GAMES_PLAYED | sed -e 's/^ +| $+//g') games, and your best game took $( echo $BEST_GAME | sed -e 's/^ +| $+//g') guesses."
   fi
 
+  #Print: Guess the secret number between 1 and 1000:
+  echo "Guess the secret number between 1 and 1000:"
   USER_GUESS
 
 }
@@ -34,26 +36,43 @@ START() {
 
 
 USER_GUESS() {
-  #Print: Guess the secret number between 1 and 1000:
-  echo "Guess the secret number between 1 and 1000:"
+  
   #read user input
   read GUESS
+  echo $RANDOM_NUMBER
 
-  #if guess is higher, print: It's higher than that, guess again:
   if [[ ! $GUESS =~ ^[1-9][1-9]* ]]
     then
     echo "That is not an integer, guess again:"
     USER_GUESS
-    else
-    echo "hi"
+  elif [[ $GUESS > $RANDOM_NUMBER ]]
+    then
+    echo "It's lower than that, guess again:"
+    ((NUMBER_OF_GUESSES++))
+    USER_GUESS
+  elif [[ $GUESS < $RANDOM_NUMBER ]]
+    then
+    echo "It's higher than that, guess again:"
+    ((NUMBER_OF_GUESSES++))
+    USER_GUESS
+  elif [[ $GUESS == $RANDOM_NUMBER ]]
+    then
+    echo "You guessed it in $( echo $NUMBER_OF_GUESSES | sed -e 's/^ +| $+//g') tries. The secret number was $( echo $RANDOM_NUMBER | sed -e 's/^ +| $+//g'). Nice job!"
+    UPDATE_DATA
   fi
-  #if guess is lower, print: It's lower than that, guess again:
-  #if guess isn't an integer, print: That is not an integer, guess again:
-  #keep asking for input until they guess right
-
-  #if right:
-  #1 - print: You guessed it in <number_of_guesses> tries. The secret number was <secret_number>. Nice job!
+  
   #2 - input number_of_guesses to database
+}
+
+UPDATE_DATA() {
+  
+  ((GAMES_PLAYED++))
+  UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $GAMES_PLAYED WHERE username = '$USERNAME'")
+
+  if [[ $NUMBER_OF_GUESSES < $BEST_GAME || ! $BEST_GAME  ]]
+    then
+    UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
+  fi
 }
 
 START
