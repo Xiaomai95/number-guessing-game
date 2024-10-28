@@ -20,10 +20,9 @@ START() {
     # get following data: games_played, best_game
     GAMES_PLAYED=$($PSQL "SELECT games_played FROM users WHERE username='$USERNAME'")
     BEST_GAME=$($PSQL "SELECT best_game FROM users WHERE username='$USERNAME'")
-    echo "Welcome back, $SEARCH_USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
-    # Print: Welcome back, <username>! You have played <games_played> games, and your best game took <best_game> guesses.
+    echo "Welcome back, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
     else
-    echo "Welcome, $USERNAME! It looks like this is your first time here."
+    echo "Welcome, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! It looks like this is your first time here."
     ADD_NAME_TO_DATABASE=$($PSQL "INSERT INTO users(username, games_played, best_game) VALUES('$USERNAME', 0, 999)")
   fi
 
@@ -37,9 +36,7 @@ START() {
 
 USER_GUESS() {
   
-  #read user input
   read GUESS
-  echo $RANDOM_NUMBER
 
   if [[ ! $GUESS =~ ^[1-9][1-9]* ]]
     then
@@ -51,16 +48,16 @@ USER_GUESS() {
      ((NUMBER_OF_GUESSES++))
     echo "It's lower than that, guess again:"
     USER_GUESS
+    return
     elif [[ $GUESS -lt $RANDOM_NUMBER ]]
       then
        ((NUMBER_OF_GUESSES++))
       echo "It's higher than that, guess again:"
       USER_GUESS
+      return
     else
       ((GAMES_PLAYED++))
       UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $GAMES_PLAYED WHERE username = '$USERNAME'")
-      echo "games played: $GAMES_PLAYED"
-
       if [[ $NUMBER_OF_GUESSES -lt $BEST_GAME ]]
         then
         UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
