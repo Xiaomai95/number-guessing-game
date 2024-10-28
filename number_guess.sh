@@ -22,7 +22,7 @@ START() {
     BEST_GAME=$($PSQL "SELECT best_game FROM users WHERE username='$USERNAME'")
     echo "Welcome back, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
     else
-    echo "Welcome, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! It looks like this is your first time here."
+    echo -e "Welcome, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! It looks like this is your first time here."
     ADD_NAME_TO_DATABASE=$($PSQL "INSERT INTO users(username, games_played, best_game) VALUES('$USERNAME', 0, 999)")
   fi
 
@@ -37,8 +37,8 @@ START() {
 USER_GUESS() {
   
   read GUESS
-
-  if [[ ! $GUESS =~ ^[1-9][1-9]* ]]
+  echo $RANDOM_NUMBER
+  if ! [[ $GUESS =~ ^[0-9]+$ ]]
     then
     echo "That is not an integer, guess again:"
     USER_GUESS
@@ -57,14 +57,15 @@ USER_GUESS() {
       return
     else
       ((GAMES_PLAYED++))
+      ((NUMBER_OF_GUESSES++))
       UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $GAMES_PLAYED WHERE username = '$USERNAME'")
       if [[ $NUMBER_OF_GUESSES -lt $BEST_GAME ]]
         then
         UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
       fi
-      echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $RANDOM_NUMBER. Nice job!"
+      echo -e "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $RANDOM_NUMBER. Nice job!"
   fi
-  
+  exit 0
 }
 
 START
