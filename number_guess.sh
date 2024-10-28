@@ -39,6 +39,7 @@ USER_GUESS() {
   
   #read user input
   read GUESS
+  echo $RANDOM_NUMBER
 
   if [[ ! $GUESS =~ ^[1-9][1-9]* ]]
     then
