@@ -20,7 +20,7 @@ START() {
     # get following data: games_played, best_game
     GAMES_PLAYED=$($PSQL "SELECT games_played FROM users WHERE username='$USERNAME'")
     BEST_GAME=$($PSQL "SELECT best_game FROM users WHERE username='$USERNAME'")
-    echo "Welcome back, $(echo $USERNAME | sed -e 's/^ +| $+//g')! You have played $(echo $GAMES_PLAYED | sed -e 's/^ +| $+//g') games, and your best game took $(echo $BEST_GAME | sed -e 's/^ +| $+//g') guesses."
+    echo "Welcome back, $(echo $SEARCH_USERNAME | sed -e 's/^ +| $+//g')! You have played $(echo $GAMES_PLAYED | sed -e 's/^ +| $+//g') games, and your best game took $(echo $BEST_GAME | sed -e 's/^ +| $+//g') guesses."
     # Print: Welcome back, <username>! You have played <games_played> games, and your best game took <best_game> guesses.
     else
     echo "Welcome, $( echo $USERNAME | sed -e 's/^ +| $+//g')! It looks like this is your first time here."
@@ -46,34 +46,44 @@ USER_GUESS() {
     echo "That is not an integer, guess again:"
     USER_GUESS
   fi
-  if [[ $GUESS > $RANDOM_NUMBER ]]
+  if [[ $GUESS -gt $RANDOM_NUMBER ]]
     then
     echo "It's lower than that, guess again:"
     ((NUMBER_OF_GUESSES++))
     USER_GUESS
-    elif [[ $GUESS < $RANDOM_NUMBER ]]
+    return
+    elif [[ $GUESS -lt $RANDOM_NUMBER ]]
       then
       echo "It's higher than that, guess again:"
       ((NUMBER_OF_GUESSES++))
       USER_GUESS
+      return
     elif [[ $GUESS == $RANDOM_NUMBER ]]
       then
+      ((NUMBER_OF_GUESSES++))
+      ((GAMES_PLAYED++))
+      UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $GAMES_PLAYED WHERE username = '$USERNAME'")
+
+      if [[ $NUMBER_OF_GUESSES -lt $BEST_GAME || -z $BEST_GAME  ]]
+        then
+        UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
+      fi
+    
       echo "You guessed it in $( echo $NUMBER_OF_GUESSES | sed -e 's/^ +| $+//g') tries. The secret number was $( echo $RANDOM_NUMBER | sed -e 's/^ +| $+//g'). Nice job!"
-      UPDATE_DATA
   fi
   
 }
 
-UPDATE_DATA() {
+# UPDATE_DATA() {
   
-  ((GAMES_PLAYED++))
-  UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $GAMES_PLAYED WHERE username = '$USERNAME'")
+#   ((GAMES_PLAYED++))
+#   UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $GAMES_PLAYED WHERE username = '$USERNAME'")
 
-  if [[ $NUMBER_OF_GUESSES < $BEST_GAME || ! $BEST_GAME  ]]
-    then
-    UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
-  fi
+#   if [[ $NUMBER_OF_GUESSES -lt $BEST_GAME || -z $BEST_GAME  ]]
+#     then
+#     UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
+#   fi
   
-}
+# }
 
 START
