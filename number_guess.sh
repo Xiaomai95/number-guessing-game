@@ -51,13 +51,11 @@ USER_GUESS() {
     echo "It's lower than that, guess again:"
     ((NUMBER_OF_GUESSES++))
     USER_GUESS
-    return
     elif [[ $GUESS -lt $RANDOM_NUMBER ]]
       then
       echo "It's higher than that, guess again:"
       ((NUMBER_OF_GUESSES++))
       USER_GUESS
-      return
     elif [[ $GUESS == $RANDOM_NUMBER ]]
       then
       ((NUMBER_OF_GUESSES++))
@@ -68,7 +66,6 @@ USER_GUESS() {
         then
         UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
       fi
-    
       echo "You guessed it in $(echo "$NUMBER_OF_GUESSES" | sed -r 's/^ *| *$//g') tries. The secret number was $(echo "$RANDOM_NUMBER" | sed -r 's/^ *| *$//g'). Nice job!"
   fi
   
