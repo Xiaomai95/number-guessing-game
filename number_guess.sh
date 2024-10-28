@@ -20,10 +20,10 @@ START() {
     # get following data: games_played, best_game
     GAMES_PLAYED=$($PSQL "SELECT games_played FROM users WHERE username='$USERNAME'")
     BEST_GAME=$($PSQL "SELECT best_game FROM users WHERE username='$USERNAME'")
-    echo "Welcome back, $(echo $SEARCH_USERNAME | sed -e 's/^ +| $+//g')! You have played $(echo $GAMES_PLAYED | sed -e 's/^ +| $+//g') games, and your best game took $(echo $BEST_GAME | sed -e 's/^ +| $+//g') guesses."
+    echo "Welcome back, $(echo "$SEARCH_USERNAME" | sed -e 's/^ *//; s/ *$//')! You have played $(echo $GAMES_PLAYED | sed -e 's/^ *//; s/ *$//') games, and your best game took $(echo "$BEST_GAME" | sed -e 's/^ *//; s/ *$//') guesses."
     # Print: Welcome back, <username>! You have played <games_played> games, and your best game took <best_game> guesses.
     else
-    echo "Welcome, $( echo $USERNAME | sed -e 's/^ +| $+//g')! It looks like this is your first time here."
+    echo "Welcome, $( echo "$USERNAME" | sed -e 's/^ *//; s/ *$//')! It looks like this is your first time here."
     ADD_NAME_TO_DATABASE=$($PSQL "INSERT INTO users(username) VALUES('$USERNAME')")
   fi
 
@@ -69,7 +69,7 @@ USER_GUESS() {
         UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
       fi
     
-      echo "You guessed it in $( echo $NUMBER_OF_GUESSES | sed -e 's/^ +| $+//g') tries. The secret number was $( echo $RANDOM_NUMBER | sed -e 's/^ +| $+//g'). Nice job!"
+      echo "You guessed it in $( echo $NUMBER_OF_GUESSES | sed -e 's/^ *//; s/ *$//') tries. The secret number was $( echo $RANDOM_NUMBER | sed -e 's/^ *//; s/ *$//'). Nice job!"
   fi
   
 }
