@@ -23,7 +23,7 @@ START() {
     echo "Welcome back, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
     else
     echo -e "Welcome, $(echo "$USERNAME" | sed -r 's/^ *| *$//')! It looks like this is your first time here."
-    ADD_NAME_TO_DATABASE=$($PSQL "INSERT INTO users(username, games_played, best_game) VALUES('$USERNAME', 0, 999)")
+    ADD_NAME_TO_DATABASE=$($PSQL "INSERT INTO users(username, games_played) VALUES('$USERNAME', 0)")
   fi
 
   #Print: Guess the secret number between 1 and 1000:
