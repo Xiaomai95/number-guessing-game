@@ -62,7 +62,6 @@ USER_GUESS() {
       UPDATE_NUMBER_OF_GUESSES=$($PSQL "INSERT INTO games(username, number_of_guesses) VALUES('$USERNAME', $NUMBER_OF_GUESSES)")
       echo -e "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $RANDOM_NUMBER. Nice job!"
   fi
-  exit 0
 }
 
 START
