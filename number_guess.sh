@@ -36,7 +36,6 @@ START() {
 USER_GUESS() {
   
   read GUESS
-  echo $RANDOM_NUMBER
   if ! [[ $GUESS =~ ^[0-9]+$ ]]
     then
     ((NUMBER_OF_GUESSES++))
